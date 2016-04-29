@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#---------------------------------------------------------
+#
+#	Author	:	UTkarsh Maheshwari
+#	Email	:	utkarshme96@gmail.com
+#	Date	:	21 - Apr - 2016
+#	Purpose	:	Logs into the BITS Goa Captive Portal on Ubuntu linux
+#
+#---------------------------------------------------------
+
+
+#Enter your username and password instead of USERNAME and PASSWORD
+#eg: username="f2015022"
+username="USERNAME"
+password="PASSWORD"
+
+
+
+#----------------------------------------------------------
+#Do not modify below this line except the ip of your hostel
+
+#Check availability of google.com
+wget -q --spider http://google.com
+
+if [ $? -eq 0 ]; then
+
+	#get ip
+	host="$(hostname -I)"
+
+	if [[ "$host" == "10.3.9."* || "$host" == "10.30.24."* ]]; then
+	
+		#Send login request
+		reply=$(curl -ksd "mode=191&username=$username&password=$password" https://10.1.0.10:8090/httpclient.html)
+
+		#Extract the msg text
+		reply="${reply##*\<message><\![CDATA[}"
+		reply=$(echo "$reply" | cut -d']' -f1)
+
+	else
+		reply="You are not connected to BITSnet"
+	fi
+else
+	reply="You are offline"
+fi
+
+#check if script wants notification or not
+if [[ "$1" != "nonotif" ]]; then
+
+	#send a notification
+	notify-send 'BITSnet' "$reply" --icon=network-transmit
+fi
